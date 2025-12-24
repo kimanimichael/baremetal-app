@@ -1,6 +1,6 @@
 /* bootloader.c */
 #include <inttypes.h>
-#include "../../common/include/memory_map.h"
+#include "memory_map.h"
 
 #define BOOTLOADER_SIZE 0x8000U
 #define MAIN_APP_START_ADDRESS 0x08000000U + BOOTLOADER_SIZE

@@ -1,15 +1,8 @@
 MEMORY
 {
-  bootrom  (rx)  : ORIGIN = 0x8000000, LENGTH = 32K
   approm   (rx)  : ORIGIN = 0x8000000, LENGTH = 2048K
   ram      (rwx) : ORIGIN = 0x20000000, LENGTH = 192K
 }
-
-__bootrom_start__ = ORIGIN(bootrom);
-__bootrom_size__ = LENGTH(bootrom);
-__approm_start__ = ORIGIN(approm);
-__approm_size__ = LENGTH(approm);
-
 
 _Min_Heap_Size = 0x2000; /* required amount of heap */
 _Min_Stack_Size = 0x4000; /* required amount of stack */

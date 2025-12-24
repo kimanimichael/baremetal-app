@@ -1,5 +1,5 @@
 # BAREMETAL ARM PRINTF
-This is a bring up of a simple baremetal application using STM32 upto using printf for debugging
+This is a bring up of a simple baremetal application using STM32 upto using printf for debugging. This project has been developed on a Linux operating system. Development has not been tested on any other operating system.
 
 ## Hardware Requirements
 
@@ -13,36 +13,42 @@ Although this project is built for the NUCLEO-F429ZI development board, users ca
 ### Prerequisites
 The following are required to build this program:
 1. [GNU Arm Embedded Toolchain](https://developer.arm.com/downloads/-/gnu-rm)
-2. [Python](https://www.python.org/downloads/)
+2. [Python](https://www.python.org/downloads/) NB: If you do not have python installed, you can use the legacy build option described at the bottom of this file.
 
 The following are required to flash this program onto a microcontroller
 1. [stlink](https://github.com/stlink-org/stlink)
 
-## Build
-Ensure all prerequisites are met.
-
-If building for the first time, clone the project and then from the root of the repository run the following command to give the build shell script file permission ot run:
-
+Run the following command to install python requirements:
 ```console
-chmod + x build.sh
+pip install -r requirements.txt
 ```
-The above command should only require to be run once.
 
-Run the following command to build:
+## Build
+### Build without a bootloader
+```console
+python3 build.py build-application --compile
+```
+### Rebuild the bootloader and build the app
+```console
+python3 build.py build-application --bootloader --compile
+```
+## Flash
+
+Connect the board to your PC and run this in the terminal
+```console
+python3 build.py build-application --flash
+```
+# Compile and Flash
+```console
+python3 build.py build-application --compile --flash
+```
+
+## Legacy Build
+This build does not require the use of python
 ```console
 ./build.sh
 ```
-## Build and Flash
-
-If building and flashing for the first time, clone the project and then from the root of the repository run the following command to give the build shell script file permission ot run:
-
-```console
-chmod + x build_flash.sh
-```
-The above command should only require to be run once.
-
-
-Run the following command to build and flash:
+## Legacy Build and Flash
 ```console
 ./build_flash.sh
 ```

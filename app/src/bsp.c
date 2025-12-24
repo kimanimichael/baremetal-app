@@ -1,7 +1,7 @@
-#include "../include/bsp.h"
 #include <inttypes.h>
-#include "../../common/include/cmsis/stm32f4xx.h"
 
+#include "bsp.h"
+#include "stm32f4xx.h"
 
 #define SYSTICK_FREQ 1000U
 #define CPU_FREQ 84000000U
@@ -23,6 +23,7 @@ void BSP_ledInit() {
     /* Bitwise AND the 15th of GPIOA_MODER with 0 */
     /* @TODO Investigate why this bricks flashing with stlink */
     // GPIOA_MODER &= (0b00 << 25);
+    GPIOA_MODER &= ~(0b01 << 25);
     /* Bite wise OR the 14th bit of GPIOA_MODER with 1*/
     GPIOA_MODER |= (0b01 << 24);
 }

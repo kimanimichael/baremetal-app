@@ -1,7 +1,7 @@
 #include <inttypes.h>
-#include "../include/bsp.h"
-#include "../../common/include/cmsis/stm32f4xx.h"
-#include "../../common/include/core/uart.h"
+#include "bsp.h"
+#include "stm32f4xx.h"
+#include "uart.h"
 
 extern int _stext;
 extern int _sdata;

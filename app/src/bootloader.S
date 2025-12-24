@@ -1,2 +1,2 @@
 .section .bootloader_section
-    .incbin "bootloader/build/bootloader.bin"
+    .incbin "../../dev_tools/baremetal_bootloader.bin"

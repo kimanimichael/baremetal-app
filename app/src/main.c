@@ -1,8 +1,9 @@
 #include <stdbool.h>
 #include <stdint.h>
-#include "../include/bsp.h"
-#include "../../common/include/core/uart.h"
 #include <stdio.h>
+
+#include "bsp.h"
+#include "uart.h"
 
 int __io_putchar(int data) {
 	uart_write((uint8_t *)&data, 1);

@@ -1,5 +1,5 @@
-#include "../include/core/uart.h"
-#include "../include/cmsis/stm32f429xx.h"
+#include "uart.h"
+#include "stm32f429xx.h"
 
 #define UART_FREQUENCY 21000000
 #define UART_BAUD 115200
