@@ -31,6 +31,9 @@ target_link_options(baremetal_app PRIVATE
         "-T${LINKER_SCRIPT}"
         "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/baremetal_app.map"
         ${CPU_FLAGS}
+        -u_printf_float
+        -u_scanf_float
+        --specs=nano.specs
         --specs=nosys.specs
 )
 
