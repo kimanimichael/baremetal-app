@@ -13,22 +13,20 @@ int __io_putchar(int data) {
 int main(){
 	BSP_init();
 	uart_setup();
+	uint8_t read_char = 0;
 
 	uint32_t start = BSP_Tickr();
 	while (true){
 		if ((BSP_Tickr() - start) > 1000) {
 			BSP_blueLedToggle();
-			printf("LED toggled\r\n");
+			printf("LED toggled\n\r");
+			printf("Float test: %.2f\n\r", 3.45);
 			start = BSP_Tickr();
 		}
-		for (int i = 0; i<11; i++) {
-		  printf("Row: %d\n\r", i);
-		  printf("Float test: %.2f\n\r", 3.45);
-		  BSP_Delay(500);
-	  	}
-		printf("\ec");
-		printf("\n\n\n\r");
-		BSP_Delay(2000);
+		if (uart_data_available()) {
+			uart_read(&read_char, 1);
+			printf("%c\n\r", read_char + 1);
+		}
 	}
 }
 
