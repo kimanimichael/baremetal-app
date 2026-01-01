@@ -53,6 +53,7 @@ target_include_directories(${APP_TARGET}
 
 target_sources(${APP_TARGET}
         PRIVATE
+        common/src/core/ring_buffer.c
         common/src/core/system_stm32f4xx.c
         common/src/core/uart.c
         app/src/bsp.c
