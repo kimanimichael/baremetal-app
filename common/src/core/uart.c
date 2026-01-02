@@ -6,7 +6,7 @@
 #define UART_BAUD 115200
 #define UART_DIVISOR 8 * (2 - 0)
 
-#define RING_BUFFER_SIZE 64
+#define RING_BUFFER_SIZE 128 // For around 10 ms of latency. 115200 UART baud ~= 115.20 bytes/10 ms ~= 128 bytes
 
 static uint8_t data_buffer[RING_BUFFER_SIZE] = {0u};
 static ring_buffer_t rx_buffer = {0U};
