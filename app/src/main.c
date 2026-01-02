@@ -27,6 +27,7 @@ int main(){
 			uart_read(&read_char, 1);
 			printf("%c\n\r", read_char + 1);
 		}
+		BSP_Delay(1000);
 	}
 }
 
