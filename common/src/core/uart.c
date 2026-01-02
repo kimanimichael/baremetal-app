@@ -1,20 +1,24 @@
 #include "uart.h"
+#include "ring_buffer.h"
 #include "stm32f429xx.h"
 
 #define UART_FREQUENCY 21000000
 #define UART_BAUD 115200
 #define UART_DIVISOR 8 * (2 - 0)
 
-static uint8_t data_buffer = 0U;
-static bool data_available = false;
+#define RING_BUFFER_SIZE 128 // For around 10 ms of latency. 115200 UART baud ~= 115.20 bytes/10 ms ~= 128 bytes
+
+static uint8_t data_buffer[RING_BUFFER_SIZE] = {0u};
+static ring_buffer_t rx_buffer = {0U};
 
 void usart3_isr(void) {
   const bool overrun_occured = (USART3->SR & USART_SR_ORE) !=0;
   const bool received_data = (USART3->SR & USART_SR_RXNE) !=0;
 
   if (received_data || overrun_occured) {
-    data_buffer = (uint8_t)USART3->DR;
-    data_available = true;
+    if (!ring_buffer_write(&rx_buffer, (uint8_t)USART3->DR)) {
+        // debug ring buffer full failure
+    }
   }
 }
 
@@ -48,6 +52,8 @@ void uart_setup(void) {
      * Receiver interrupts enable
     */
     USART3->CR1 |= USART_CR1_UE | USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE;
+
+    ring_buffer_init(&rx_buffer, data_buffer, RING_BUFFER_SIZE);
 }
 
 void uart_write(uint8_t *data, const uint32_t length) {
@@ -64,20 +70,23 @@ void uart_write_byte(uint8_t data) {
 }
 
 uint32_t uart_read(uint8_t *data, const uint32_t length) {
-    if (length > 0 && data_available) {
-        *data = data_buffer;
-        data_available = false;
-        return 1;
+    if (length > 0) {
+        for (int i =0; i < length; i++) {
+            if (!ring_buffer_read(&rx_buffer, &data[i])) {
+                return i;
+            }
+        }
+        return length;
     }
     return 0;
 }
 
 uint8_t uart_read_byte(void) {
-    data_available = false;
-    return data_buffer;
+    uint8_t byte = 0;
+    (void)uart_read(&byte, 1);
+    return byte;
 }
 
 bool uart_data_available(void) {
-    return data_available;
+    return !ring_buffer_is_empty(&rx_buffer);
 }
-
