@@ -48,6 +48,7 @@ target_include_directories(${APP_TARGET}
         ${CMAKE_CURRENT_SOURCE_DIR}/common/include
         ${CMAKE_CURRENT_SOURCE_DIR}/common/include/core
         ${CMAKE_CURRENT_SOURCE_DIR}/common/include/cmsis
+        ${CMAKE_CURRENT_SOURCE_DIR}/common/include/utils
         app/include
 )
 
@@ -56,6 +57,7 @@ target_sources(${APP_TARGET}
         common/src/core/ring_buffer.c
         common/src/core/system_stm32f4xx.c
         common/src/core/uart.c
+        common/src/utils/crc8.c
         app/src/bsp.c
         app/src/main.c
         app/src/startup.c
