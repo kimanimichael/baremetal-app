@@ -38,12 +38,21 @@ project(${BOOT_TARGET} C)
 
 target_include_directories(${BOOT_TARGET}
         PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/../common/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/../common/include/core
+        ${CMAKE_CURRENT_SOURCE_DIR}/../common/include/cmsis
+        ${CMAKE_CURRENT_SOURCE_DIR}/../common/include/utils
 )
 
 target_sources(${BOOT_TARGET}
         PRIVATE
         src/bootloader.c
+        src/comms.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/core/ring_buffer.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/core/uart.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/utils/crc8.c
+
 )
 
 add_custom_command(TARGET ${BOOT_TARGET} POST_BUILD
