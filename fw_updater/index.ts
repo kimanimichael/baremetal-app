@@ -106,32 +106,38 @@ const consumeFromBuffer = (n: number) => {
 }
 
 uart.on('data', data => {
-
+    console.log(`Received ${data.length} bytes through UART`);
     // Add data to the packet
     rxBuffer = Buffer.concat([rxBuffer, data]);
 
     // Check if we can build a packet
     while (rxBuffer.length >= PACKET_LENGTH) {
+        console.log(`Building packet from ${rxBuffer.length} bytes`);
         const raw = consumeFromBuffer(PACKET_LENGTH);
         const packet = new Packet(raw[0], raw.slice(1, 1 + PACKET_DATA_BYTES), raw[PACKET_CRC_INDEX]);
         const computedCrc = packet.computeCrc();
 
         // Check if the packet is valid and request a retransmission if not
         if (computedCrc !== packet.crc) {
+            console.log(`CRC failed, computed 0x${computedCrc.toString(16)}, got 0x${packet.crc.toString(16)}`)
             writePacket(Packet.retx);
             return;
         }
 
         if (packet.isRetx()) {
+            console.log(`Retransmitting last packet`);
             writePacket(lastPacket);
             return;
         }
 
         if (packet.isAck()) {
+            console.log(`ACK received`)
             return;
         }
 
+        console.log(`Storing packet and ack'ing`);
         packets.push(packet);
+        console.log(`ACK sent`)
         writePacket(Packet.ack);
     }
 });
