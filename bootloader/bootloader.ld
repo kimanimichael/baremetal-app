@@ -3,12 +3,10 @@
 MEMORY
 {
   bootrom  (rx)  : ORIGIN = 0x8000000, LENGTH = 32K
-  approm   (rx)  : ORIGIN = 0x8008000, LENGTH = 2016K
   ram      (rwx) : ORIGIN = 0x20000000, LENGTH = 192K
 }
 
-__bootrom_start__ = ORIGIN(bootrom);
-__bootrom_size__ = LENGTH(bootrom);
+_Min_Stack_Size = 0x4000; /* required amount of stack */
 
 /* Section Definitions */
 SECTIONS
@@ -84,6 +82,14 @@ SECTIONS
 		. = ALIGN(4);
 		_ebss = .;
 	} >ram
+
+	/* stack section */
+    .stack (NOLOAD):
+    {
+        . = ALIGN(8);
+        . = . + _Min_Stack_Size;
+        . = ALIGN(8);
+    } > ram
 
 	/*
 	 * The .eh_frame section appears to be used for C++ exception handling.
