@@ -1,17 +1,20 @@
 #include "ring_buffer.h"
 
-void ring_buffer_init(ring_buffer_t *ring_buffer, uint8_t *buffer, const uint32_t size) {
+void ring_buffer_init(ring_buffer_t* ring_buffer, uint8_t* buffer, const uint32_t size)
+{
     ring_buffer->buffer = buffer;
     ring_buffer->read_index = 0;
     ring_buffer->write_index = 0;
     ring_buffer->mask = size - 1;
 }
 
-bool ring_buffer_is_empty(const ring_buffer_t * ring_buffer) {
+bool ring_buffer_is_empty(const ring_buffer_t* ring_buffer)
+{
     return ring_buffer->read_index == ring_buffer->write_index;
 }
 
-bool ring_buffer_write(ring_buffer_t *ring_buffer, const uint8_t byte) {
+bool ring_buffer_write(ring_buffer_t* ring_buffer, const uint8_t byte)
+{
     const uint32_t local_write_index = ring_buffer->write_index;
     const uint32_t local_read_index = ring_buffer->read_index;
 
@@ -27,7 +30,8 @@ bool ring_buffer_write(ring_buffer_t *ring_buffer, const uint8_t byte) {
     return true;
 }
 
-bool ring_buffer_read(ring_buffer_t *ring_buffer, uint8_t *byte) {
+bool ring_buffer_read(ring_buffer_t* ring_buffer, uint8_t* byte)
+{
     const uint32_t local_read_index = ring_buffer->read_index;
     const uint32_t local_write_index = ring_buffer->write_index;
 

@@ -34,11 +34,13 @@ void SysTick_Handler(void);
 
 volatile uint32_t l_tickrCtr;
 
-void SysTick_Handler(void) {
+void SysTick_Handler(void)
+{
     ++l_tickrCtr;
 }
 
-static uint32_t system_ticker(void) {
+static uint32_t system_ticker(void)
+{
     uint32_t tickrCtr;
 
     __disable_irq();
@@ -48,10 +50,10 @@ static uint32_t system_ticker(void) {
     return tickrCtr;
 }
 
-void system_delay(uint32_t ticks) {
+void system_delay(uint32_t ticks)
+{
     uint32_t start = system_ticker();
-    while ((system_ticker() - start) < ticks)
-    {
+    while ((system_ticker() - start) < ticks) {
         /* code */
 
     }
@@ -59,7 +61,8 @@ void system_delay(uint32_t ticks) {
 
 }
 
-static void uart_gpio_setup() {
+static void uart_gpio_setup()
+{
     //Bitwise OR the third bit of RCC_AHB1ENR with 1 to enable GPIOD_EN CLOCK
     RCC->AHB1ENR |= (0b01 << 3);
 
@@ -81,22 +84,22 @@ static void uart_gpio_setup() {
     GPIOD_AFRH &= ~(0b01 << 7);
 }
 
-static void jump_to_application() {
+static void jump_to_application()
+{
     typedef void (*void_fn)(void);
 
-    uint32_t *reset_vector_entry = (uint32_t *)(MAIN_APP_START_ADDRESS + 4U);
-    uint32_t *reset_vector = (uint32_t *)(*reset_vector_entry);
+    uint32_t* reset_vector_entry = (uint32_t*)(MAIN_APP_START_ADDRESS + 4U);
+    uint32_t* reset_vector = (uint32_t*)(*reset_vector_entry);
     void_fn jump_fn = reset_vector;
-    
+
     jump_fn();
 }
 
-unsigned int *vectors[] __attribute__((section(".vectors"))) = 
-{
-    (unsigned int *)0x20030000, //Pointer to the top of our stack memory
-    (unsigned int *)main, // Pointer to our reset handler - also our startup code
-    (unsigned int *)NMI_Handler, //NMI
-    (unsigned int *)HardFault_Handler, //HardFault
+unsigned int* vectors[] __attribute__((section(".vectors"))) = {
+    (unsigned int*)0x20030000,  //Pointer to the top of our stack memory
+    (unsigned int*)main,  // Pointer to our reset handler - also our startup code
+    (unsigned int*)NMI_Handler,  //NMI
+    (unsigned int*)HardFault_Handler,  //HardFault
     0,
     0,
     0,
@@ -108,27 +111,28 @@ unsigned int *vectors[] __attribute__((section(".vectors"))) =
     0,
     0,
     0,
-    (unsigned int *)SysTick_Handler, //SysTick_Handler
+    (unsigned int*)SysTick_Handler,  //SysTick_Handler
 };
 
-int main(void) {
+int main(void)
+{
     SystemInit();
     SystemCoreClockUpdate();
 
-    uint32_t *init_values_ptr = (uint32_t *) &_etext;
-    uint32_t *data_ptr = (uint32_t *) &_data;
+    uint32_t* init_values_ptr = (uint32_t*) &_etext;
+    uint32_t* data_ptr = (uint32_t*) &_data;
 
     if (data_ptr != init_values_ptr) {
-        for (; data_ptr < (uint32_t *) &_edata;) {
+        for (; data_ptr < (uint32_t*) &_edata;) {
             *data_ptr++ = *init_values_ptr++;
         }
     }
 
-    for (uint32_t *bss_ptr = (uint32_t *) &_sbss; bss_ptr < (uint32_t *)&_ebss;) {
+    for (uint32_t* bss_ptr = (uint32_t*) &_sbss; bss_ptr < (uint32_t*)&_ebss;) {
         *bss_ptr++ = 0;
     }
 
-    SysTick_Config(CPU_FREQ/SYSTICK_FREQ);
+    SysTick_Config(CPU_FREQ / SYSTICK_FREQ);
     uart_gpio_setup();
     uart_setup();
     comms_setup();
@@ -157,25 +161,23 @@ int main(void) {
     jump_to_application();
 }
 
-void HardFault_Handler (void)
+void HardFault_Handler(void)
 {
-    #ifdef DEBUG
+#ifdef DEBUG
     __BKPT(0);
-    #endif
-    while (1)
-    {
+#endif
+    while (1) {
         /* code */
-        
+
     }
 
 }
 
-void NMI_Handler (void)
+void NMI_Handler(void)
 {
-    while (1)
-    {
+    while (1) {
         /* code */
-        
+
     }
 
 }

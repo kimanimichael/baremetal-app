@@ -30,15 +30,15 @@ void comms_setup(void);
 
 void comms_update(void);
 
-void comms_write_packet(comms_packet_t const *packet);
+void comms_write_packet(comms_packet_t const* packet);
 
-void comms_read_packet(comms_packet_t *packet);
+void comms_read_packet(comms_packet_t* packet);
 
-bool comms_is_single_byte_packet(comms_packet_t const *packet, uint8_t byte);
+bool comms_is_single_byte_packet(comms_packet_t const* packet, uint8_t byte);
 
-uint8_t comms_compute_crc(comms_packet_t *packet);
+uint8_t comms_compute_crc(comms_packet_t* packet);
 
-void comms_packet_cpy(comms_packet_t *dest, const comms_packet_t *src);
+void comms_packet_cpy(comms_packet_t* dest, const comms_packet_t* src);
 
 void comms_create_single_byte_packet(comms_packet_t* packet, uint8_t byte);
 

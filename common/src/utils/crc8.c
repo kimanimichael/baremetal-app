@@ -1,6 +1,7 @@
 #include "crc8.h"
 
-uint8_t calculate_crc8(uint8_t* data, uint32_t length) {
+uint8_t calculate_crc8(uint8_t* data, uint32_t length)
+{
     uint8_t crc = 0;
 
     for (uint32_t i = 0; i < length; i++) {

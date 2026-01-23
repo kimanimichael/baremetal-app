@@ -11,18 +11,20 @@
 static uint8_t data_buffer[RING_BUFFER_SIZE] = {0u};
 static ring_buffer_t rx_buffer = {0U};
 
-void usart3_isr(void) {
-  const bool overrun_occured = (USART3->SR & USART_SR_ORE) !=0;
-  const bool received_data = (USART3->SR & USART_SR_RXNE) !=0;
+void usart3_isr(void)
+{
+    const bool overrun_occured = (USART3->SR & USART_SR_ORE) != 0;
+    const bool received_data = (USART3->SR & USART_SR_RXNE) != 0;
 
-  if (received_data || overrun_occured) {
-    if (!ring_buffer_write(&rx_buffer, (uint8_t)USART3->DR)) {
-        // debug ring buffer full failure
+    if (received_data || overrun_occured) {
+        if (!ring_buffer_write(&rx_buffer, (uint8_t)USART3->DR)) {
+            // debug ring buffer full failure
+        }
     }
-  }
 }
 
-void uart_setup(void) {
+void uart_setup(void)
+{
     /* Enable USART3 clock */
     RCC->APB1ENR |= (0b01 << 18);
     /* No DMA, no flow control, disable smart card mode, no half-duplex selection, normal power mode etc. */
@@ -31,10 +33,10 @@ void uart_setup(void) {
     /** Reset the UART control register 1
      * Bit 12 = 0 : 1 Start bit, 8 Data bits, n Stop bit
      * Bit 10 = 0 : No parity bit
-     * 
+     *
      */
     USART3->CR1 &= ~USART_CR1_UE;
-    /* Set baud rate to 115200 
+    /* Set baud rate to 115200
      * baud = fck /(8 * (2- OVER8)* usart_div)
      * usart_div = fck/(8 * (2- OVER8) * baud)
      * uint32_t usart_div = UART_FREQUENCY/(8 * (2- 0)*UART_BAUD) = 11 = 0xb
@@ -45,7 +47,7 @@ void uart_setup(void) {
 
     NVIC_EnableIRQ(USART3_IRQn);
 
-    /* Configure Uart Control Register 1 
+    /* Configure Uart Control Register 1
      * USART enable
      * Transmitter enable
      * Receiver enable
@@ -56,22 +58,25 @@ void uart_setup(void) {
     ring_buffer_init(&rx_buffer, data_buffer, RING_BUFFER_SIZE);
 }
 
-void uart_write(uint8_t *data, const uint32_t length) {
-    for (int i =0; i < length; i++) {
+void uart_write(uint8_t* data, const uint32_t length)
+{
+    for (int i = 0; i < length; i++) {
         uart_write_byte(data[i]);
     }
 
 }
 
-void uart_write_byte(uint8_t data) {
+void uart_write_byte(uint8_t data)
+{
     /* Wait until the data has been transferred into the shift register. */
-	while ((USART3->SR & USART_SR_TXE) == 0);
+    while ((USART3->SR & USART_SR_TXE) == 0);
     USART3->DR = data;
 }
 
-uint32_t uart_read(uint8_t *data, const uint32_t length) {
+uint32_t uart_read(uint8_t* data, const uint32_t length)
+{
     if (length > 0) {
-        for (int i =0; i < length; i++) {
+        for (int i = 0; i < length; i++) {
             if (!ring_buffer_read(&rx_buffer, &data[i])) {
                 return i;
             }
@@ -81,12 +86,14 @@ uint32_t uart_read(uint8_t *data, const uint32_t length) {
     return 0;
 }
 
-uint8_t uart_read_byte(void) {
+uint8_t uart_read_byte(void)
+{
     uint8_t byte = 0;
     (void)uart_read(&byte, 1);
     return byte;
 }
 
-bool uart_data_available(void) {
+bool uart_data_available(void)
+{
     return !ring_buffer_is_empty(&rx_buffer);
 }
