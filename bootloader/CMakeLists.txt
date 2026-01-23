@@ -4,6 +4,7 @@ set(CMAKE_ASM_COMPILER "arm-none-eabi-gcc")
 set(CMAKE_C_COMPILER "arm-none-eabi-gcc")
 set(CMAKE_LINKER "arm-none-eabi-ld")
 set(CMAKE_OBJCOPY "arm-none-eabi-objcopy")
+set(CMAKE_NM "arm-none-eabi-nm")
 
 set(CMAKE_C_COMPILER_WORKS 1)
 
@@ -58,6 +59,7 @@ target_sources(${BOOT_TARGET}
 
 add_custom_command(TARGET ${BOOT_TARGET} POST_BUILD
         COMMAND ${CMAKE_OBJCOPY} -O binary ${CMAKE_BINARY_DIR}/${BOOT_TARGET} --pad-to=0x8008000 --gap-fill=0Xff ${CMAKE_BINARY_DIR}/${BOOT_TARGET}.bin
+        COMMAND ${CMAKE_NM} -n ${CMAKE_BINARY_DIR}/${BOOT_TARGET} > ${CMAKE_BINARY_DIR}/${BOOT_TARGET}.sym
 )
 
 option(VERBOSE_BUILD "Have a verbose build process")
