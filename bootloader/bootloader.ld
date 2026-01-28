@@ -6,6 +6,7 @@ MEMORY
   ram      (rwx) : ORIGIN = 0x20000000, LENGTH = 192K
 }
 
+_Min_Heap_Size = 0x2000; /* required amount of heap */
 _Min_Stack_Size = 0x4000; /* required amount of stack */
 
 /* Section Definitions */
@@ -90,6 +91,18 @@ SECTIONS
         . = . + _Min_Stack_Size;
         . = ALIGN(8);
     } > ram
+
+    /* User_heap_stack section, used to check that there is enough "RAM" Ram  type memory left */
+    ._user_heap_stack :
+    {
+    . = ALIGN(8);
+    PROVIDE ( end = . );
+    PROVIDE ( _end = . );
+    . = . + _Min_Heap_Size;
+    . = . + _Min_Stack_Size;
+    . = ALIGN(8);
+    } >ram
+
 
 	/*
 	 * The .eh_frame section appears to be used for C++ exception handling.
