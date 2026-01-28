@@ -198,7 +198,7 @@ int main(void)
     while (true) {
         comms_update();
         comms_write_packet(&packet);
-        system_delay(5U);
+        system_delay(500U);
     }
 
     jump_to_application();
