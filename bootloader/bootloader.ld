@@ -16,8 +16,10 @@ SECTIONS
     {
 	. = ALIGN(512);
         KEEP(*(.vectors .vectors.*))
+        *(.text)
         *(.text*)
         . = ALIGN(4);
+        *(.rodata)
         *(.rodata*)
         . = ALIGN(4);
     } > bootrom
@@ -113,5 +115,3 @@ SECTIONS
 	. = ALIGN(4);
 	end = .;
 }
-
-PROVIDE(_stack = ORIGIN(ram) + LENGTH(ram));
