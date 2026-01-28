@@ -25,6 +25,9 @@ extern int _ebss;
 
 void NMI_Handler(void);
 void HardFault_Handler(void);
+void MemManage_Handler(void);
+void BusFault_Handler(void);
+void UsageFault_Handler(void);
 
 // Breaks as it causes excedding of allocated size
 // const uint8_t data[0x8000] = {0};
@@ -100,9 +103,9 @@ unsigned int* vectors[] __attribute__((section(".vectors"))) = {
     (unsigned int*)main,  // Pointer to our reset handler - also our startup code
     (unsigned int*)NMI_Handler,  //NMI
     (unsigned int*)HardFault_Handler,  //HardFault
-    0,
-    0,
-    0,
+    (unsigned int*)MemManage_Handler,  //MemManage
+    (unsigned int*)BusFault_Handler,  //BusFault
+    (unsigned int*)UsageFault_Handler,  //MemManage
     0,
     0,
     0,
@@ -112,6 +115,46 @@ unsigned int* vectors[] __attribute__((section(".vectors"))) = {
     0,
     0,
     (unsigned int*)SysTick_Handler,  //SysTick_Handler
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    (unsigned int*)usart3_isr,  //USART3 ISR
 };
 
 int main(void)
@@ -155,7 +198,7 @@ int main(void)
     while (true) {
         comms_update();
         comms_write_packet(&packet);
-        system_delay(500U);
+        system_delay(5U);
     }
 
     jump_to_application();
@@ -178,6 +221,40 @@ void NMI_Handler(void)
     while (1) {
         /* code */
 
+    }
+
+}
+
+void MemManage_Handler(void)
+{
+    #ifdef DEBUG
+    __BKPT(0);
+    #endif
+    while (1) {
+        /* code */
+
+    }
+
+}
+
+void BusFault_Handler(void)
+{
+    #ifdef DEBUG
+    __BKPT(0);
+    #endif
+    while (1) {
+        /* code */
+    }
+
+}
+
+void UsageFault_Handler(void)
+{
+    #ifdef DEBUG
+    __BKPT(0);
+    #endif
+    while (1) {
+        /* code */
     }
 
 }
