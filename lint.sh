@@ -1,0 +1,6 @@
+astyle -n --options=.astylerc --recursive "app/*.c"
+astyle -n --options=.astylerc --recursive "app/*.h"
+astyle -n --options=.astylerc --recursive "common/*.c"
+astyle -n --options=.astylerc --recursive "common/*.h"
+astyle -n --options=.astylerc --recursive "bootloader/*.h"
+astyle -n --options=.astylerc --recursive "bootloader/*.c"

@@ -3,12 +3,11 @@
 MEMORY
 {
   bootrom  (rx)  : ORIGIN = 0x8000000, LENGTH = 32K
-  approm   (rx)  : ORIGIN = 0x8008000, LENGTH = 2016K
   ram      (rwx) : ORIGIN = 0x20000000, LENGTH = 192K
 }
 
-__bootrom_start__ = ORIGIN(bootrom);
-__bootrom_size__ = LENGTH(bootrom);
+_Min_Heap_Size = 0x2000; /* required amount of heap */
+_Min_Stack_Size = 0x4000; /* required amount of stack */
 
 /* Section Definitions */
 SECTIONS
@@ -17,8 +16,10 @@ SECTIONS
     {
 	. = ALIGN(512);
         KEEP(*(.vectors .vectors.*))
+        *(.text)
         *(.text*)
         . = ALIGN(4);
+        *(.rodata)
         *(.rodata*)
         . = ALIGN(4);
     } > bootrom
@@ -78,11 +79,32 @@ SECTIONS
 	_data_loadaddr = LOADADDR(.data);
 
 	.bss : {
+	    _sbss = .;
 		*(.bss*)	/* Read-write zero initialized data */
 		*(COMMON)
 		. = ALIGN(4);
 		_ebss = .;
 	} >ram
+
+	/* stack section */
+    .stack (NOLOAD):
+    {
+        . = ALIGN(8);
+        . = . + _Min_Stack_Size;
+        . = ALIGN(8);
+    } > ram
+
+    /* User_heap_stack section, used to check that there is enough "RAM" Ram  type memory left */
+    ._user_heap_stack :
+    {
+    . = ALIGN(8);
+    PROVIDE ( end = . );
+    PROVIDE ( _end = . );
+    . = . + _Min_Heap_Size;
+    . = . + _Min_Stack_Size;
+    . = ALIGN(8);
+    } >ram
+
 
 	/*
 	 * The .eh_frame section appears to be used for C++ exception handling.
@@ -93,5 +115,3 @@ SECTIONS
 	. = ALIGN(4);
 	end = .;
 }
-
-PROVIDE(_stack = ORIGIN(ram) + LENGTH(ram));
