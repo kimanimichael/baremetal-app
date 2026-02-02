@@ -175,6 +175,8 @@ int main(void)
         *bss_ptr++ = 0;
     }
 
+    SystemCoreClockUpdate();
+
     SysTick_Config(CPU_FREQ / SYSTICK_FREQ);
     uart_gpio_setup();
     uart_setup();
@@ -227,9 +229,9 @@ void NMI_Handler(void)
 
 void MemManage_Handler(void)
 {
-    #ifdef DEBUG
+#ifdef DEBUG
     __BKPT(0);
-    #endif
+#endif
     while (1) {
         /* code */
 
@@ -239,9 +241,9 @@ void MemManage_Handler(void)
 
 void BusFault_Handler(void)
 {
-    #ifdef DEBUG
+#ifdef DEBUG
     __BKPT(0);
-    #endif
+#endif
     while (1) {
         /* code */
     }
@@ -250,9 +252,9 @@ void BusFault_Handler(void)
 
 void UsageFault_Handler(void)
 {
-    #ifdef DEBUG
+#ifdef DEBUG
     __BKPT(0);
-    #endif
+#endif
     while (1) {
         /* code */
     }
