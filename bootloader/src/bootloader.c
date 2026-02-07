@@ -3,9 +3,10 @@
 #include "uart.h"
 #include "stm32f4xx.h"
 #include "comms.h"
+#include "bl-flash.h"
 
 #define BOOTLOADER_SIZE 0x8000U
-#define MAIN_APP_START_ADDRESS 0x08000000U + BOOTLOADER_SIZE
+#define MAIN_APP_START_ADDRESS (0x08000000U + BOOTLOADER_SIZE)
 
 //Base GPIOD register 0x4002 0C00 + offset 0x00 to find GPIOD_MODER
 #define GPIOD_MODER (*((unsigned int *)(0x40020C00)))
@@ -195,15 +196,16 @@ int main(void)
     };
     dummy_packet.crc = comms_compute_crc(&dummy_packet);
     packet.crc = comms_compute_crc(&packet);
+    bl_flash_erase_main_application();
 
-    /* Not Reached */
-    while (true) {
-        comms_update();
-        comms_write_packet(&packet);
-        system_delay(500U);
-    }
 
-    jump_to_application();
+    // while (true) {
+    //     comms_update();
+    //     comms_write_packet(&packet);
+    //     system_delay(500U);
+    // }
+
+    // jump_to_application();
 }
 
 void HardFault_Handler(void)

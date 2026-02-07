@@ -48,6 +48,7 @@ target_include_directories(${BOOT_TARGET}
 
 target_sources(${BOOT_TARGET}
         PRIVATE
+        src/bl-flash.c
         src/bootloader.c
         src/comms.c
         ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/core/ring_buffer.c
