@@ -179,31 +179,28 @@ int main(void)
     SystemCoreClockUpdate();
 
     SysTick_Config(CPU_FREQ / SYSTICK_FREQ);
-    uart_gpio_setup();
-    uart_setup();
-    comms_setup();
+    // uart_gpio_setup();
+    // uart_setup();
+    // comms_setup();
 
-    comms_packet_t dummy_packet = {
-        .length = 9,
-        .data = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
-        .crc = 0
-    };
+    uint8_t data[1024] = {};
+    for (uint32_t i = 0; i < 1024; i++) {
+        data[i] = i & 0xFF;
+    }
 
-    comms_packet_t packet = {
-        .length = 9,
-        .data = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
-        .crc = 0
-    };
-    dummy_packet.crc = comms_compute_crc(&dummy_packet);
-    packet.crc = comms_compute_crc(&packet);
     bl_flash_erase_main_application();
+    bl_flash_write(MAIN_APP_START_ADDRESS, data, 1024);
+    bl_flash_write(0x0800C000, data, 1024);
+    bl_flash_write(0x08010000, data, 1024);
+    bl_flash_write(0x08020000, data, 1024);
+    bl_flash_write(0x08040000, data, 1024);
+    bl_flash_write(0x08060000, data, 1024);
 
 
-    // while (true) {
-    //     comms_update();
-    //     comms_write_packet(&packet);
-    //     system_delay(500U);
-    // }
+
+    while (true) {
+
+    }
 
     // jump_to_application();
 }
