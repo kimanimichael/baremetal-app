@@ -3,7 +3,7 @@
 #include "stm32f429xx.h"
 
 #define MAIN_APP_SECTOR_START (2)
-#define MAIN_APP_SECTOR_END (9)
+#define MAIN_APP_SECTOR_END (23)
 
 void bl_flash_init(void)
 {

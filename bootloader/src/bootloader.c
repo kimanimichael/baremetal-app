@@ -195,6 +195,24 @@ int main(void)
     bl_flash_write(0x08020000, data, 1024);
     bl_flash_write(0x08040000, data, 1024);
     bl_flash_write(0x08060000, data, 1024);
+    bl_flash_write(0x08080000, data, 1024);
+    bl_flash_write(0x080A0000, data, 1024);
+    bl_flash_write(0x080C0000, data, 1024);
+    bl_flash_write(0x080E0000, data, 1024);
+    bl_flash_write(0x08100000, data, 1024);
+    bl_flash_write(0x08104000, data, 1024);
+    bl_flash_write(0x08108000, data, 1024);
+    bl_flash_write(0x0810C000, data, 1024);
+    bl_flash_write(0x08110000, data, 1024);
+    bl_flash_write(0x08120000, data, 1024);
+    bl_flash_write(0x08140000, data, 1024);
+    bl_flash_write(0x08160000, data, 1024);
+    bl_flash_write(0x08180000, data, 1024);
+    bl_flash_write(0x081A0000, data, 1024);
+    bl_flash_write(0x081C0000, data, 1024);
+    bl_flash_write(0x081E0000, data, 1024);
+
+
 
 
 
