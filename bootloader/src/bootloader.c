@@ -3,9 +3,10 @@
 #include "uart.h"
 #include "stm32f4xx.h"
 #include "comms.h"
+#include "bl-flash.h"
 
 #define BOOTLOADER_SIZE 0x8000U
-#define MAIN_APP_START_ADDRESS 0x08000000U + BOOTLOADER_SIZE
+#define MAIN_APP_START_ADDRESS (0x08000000U + BOOTLOADER_SIZE)
 
 //Base GPIOD register 0x4002 0C00 + offset 0x00 to find GPIOD_MODER
 #define GPIOD_MODER (*((unsigned int *)(0x40020C00)))
@@ -175,33 +176,51 @@ int main(void)
         *bss_ptr++ = 0;
     }
 
+    SystemCoreClockUpdate();
+
     SysTick_Config(CPU_FREQ / SYSTICK_FREQ);
-    uart_gpio_setup();
-    uart_setup();
-    comms_setup();
+    // uart_gpio_setup();
+    // uart_setup();
+    // comms_setup();
 
-    comms_packet_t dummy_packet = {
-        .length = 9,
-        .data = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
-        .crc = 0
-    };
-
-    comms_packet_t packet = {
-        .length = 9,
-        .data = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
-        .crc = 0
-    };
-    dummy_packet.crc = comms_compute_crc(&dummy_packet);
-    packet.crc = comms_compute_crc(&packet);
-
-    /* Not Reached */
-    while (true) {
-        comms_update();
-        comms_write_packet(&packet);
-        system_delay(500U);
+    uint8_t data[1024] = {};
+    for (uint32_t i = 0; i < 1024; i++) {
+        data[i] = i & 0xFF;
     }
 
-    jump_to_application();
+    bl_flash_erase_main_application();
+    bl_flash_write(MAIN_APP_START_ADDRESS, data, 1024);
+    bl_flash_write(0x0800C000, data, 1024);
+    bl_flash_write(0x08010000, data, 1024);
+    bl_flash_write(0x08020000, data, 1024);
+    bl_flash_write(0x08040000, data, 1024);
+    bl_flash_write(0x08060000, data, 1024);
+    bl_flash_write(0x08080000, data, 1024);
+    bl_flash_write(0x080A0000, data, 1024);
+    bl_flash_write(0x080C0000, data, 1024);
+    bl_flash_write(0x080E0000, data, 1024);
+    bl_flash_write(0x08100000, data, 1024);
+    bl_flash_write(0x08104000, data, 1024);
+    bl_flash_write(0x08108000, data, 1024);
+    bl_flash_write(0x0810C000, data, 1024);
+    bl_flash_write(0x08110000, data, 1024);
+    bl_flash_write(0x08120000, data, 1024);
+    bl_flash_write(0x08140000, data, 1024);
+    bl_flash_write(0x08160000, data, 1024);
+    bl_flash_write(0x08180000, data, 1024);
+    bl_flash_write(0x081A0000, data, 1024);
+    bl_flash_write(0x081C0000, data, 1024);
+    bl_flash_write(0x081E0000, data, 1024);
+
+
+
+
+
+    while (true) {
+
+    }
+
+    // jump_to_application();
 }
 
 void HardFault_Handler(void)
@@ -227,9 +246,9 @@ void NMI_Handler(void)
 
 void MemManage_Handler(void)
 {
-    #ifdef DEBUG
+#ifdef DEBUG
     __BKPT(0);
-    #endif
+#endif
     while (1) {
         /* code */
 
@@ -239,9 +258,9 @@ void MemManage_Handler(void)
 
 void BusFault_Handler(void)
 {
-    #ifdef DEBUG
+#ifdef DEBUG
     __BKPT(0);
-    #endif
+#endif
     while (1) {
         /* code */
     }
@@ -250,9 +269,9 @@ void BusFault_Handler(void)
 
 void UsageFault_Handler(void)
 {
-    #ifdef DEBUG
+#ifdef DEBUG
     __BKPT(0);
-    #endif
+#endif
     while (1) {
         /* code */
     }
