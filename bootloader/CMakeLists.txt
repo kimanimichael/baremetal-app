@@ -52,6 +52,8 @@ target_sources(${BOOT_TARGET}
         src/bootloader.c
         src/comms.c
         ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/core/ring_buffer.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/core/simple_timer.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/core/system.c
         ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/core/system_stm32f4xx.c
         ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/core/uart.c
         ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/utils/crc8.c

@@ -4,6 +4,8 @@
 #include "stm32f4xx.h"
 #include "comms.h"
 #include "bl-flash.h"
+#include "simple_timer.h"
+#include "system.h"
 
 #define BOOTLOADER_SIZE 0x8000U
 #define MAIN_APP_START_ADDRESS (0x08000000U + BOOTLOADER_SIZE)
@@ -34,36 +36,7 @@ void UsageFault_Handler(void);
 // const uint8_t data[0x8000] = {0};
 
 int main(void);
-void SysTick_Handler(void);
 
-volatile uint32_t l_tickrCtr;
-
-void SysTick_Handler(void)
-{
-    ++l_tickrCtr;
-}
-
-static uint32_t system_ticker(void)
-{
-    uint32_t tickrCtr;
-
-    __disable_irq();
-    tickrCtr = l_tickrCtr;
-    __enable_irq();
-
-    return tickrCtr;
-}
-
-void system_delay(uint32_t ticks)
-{
-    uint32_t start = system_ticker();
-    while ((system_ticker() - start) < ticks) {
-        /* code */
-
-    }
-
-
-}
 
 static void uart_gpio_setup()
 {
@@ -182,42 +155,20 @@ int main(void)
     // uart_gpio_setup();
     // uart_setup();
     // comms_setup();
-
-    uint8_t data[1024] = {};
-    for (uint32_t i = 0; i < 1024; i++) {
-        data[i] = i & 0xFF;
-    }
-
-    bl_flash_erase_main_application();
-    bl_flash_write(MAIN_APP_START_ADDRESS, data, 1024);
-    bl_flash_write(0x0800C000, data, 1024);
-    bl_flash_write(0x08010000, data, 1024);
-    bl_flash_write(0x08020000, data, 1024);
-    bl_flash_write(0x08040000, data, 1024);
-    bl_flash_write(0x08060000, data, 1024);
-    bl_flash_write(0x08080000, data, 1024);
-    bl_flash_write(0x080A0000, data, 1024);
-    bl_flash_write(0x080C0000, data, 1024);
-    bl_flash_write(0x080E0000, data, 1024);
-    bl_flash_write(0x08100000, data, 1024);
-    bl_flash_write(0x08104000, data, 1024);
-    bl_flash_write(0x08108000, data, 1024);
-    bl_flash_write(0x0810C000, data, 1024);
-    bl_flash_write(0x08110000, data, 1024);
-    bl_flash_write(0x08120000, data, 1024);
-    bl_flash_write(0x08140000, data, 1024);
-    bl_flash_write(0x08160000, data, 1024);
-    bl_flash_write(0x08180000, data, 1024);
-    bl_flash_write(0x081A0000, data, 1024);
-    bl_flash_write(0x081C0000, data, 1024);
-    bl_flash_write(0x081E0000, data, 1024);
-
-
-
-
+    volatile int x = 0;
+    simple_timer_t timer;
+    simple_timer_t timer2;
+    simple_timer_setup(&timer, 1000, false);
+    simple_timer_setup(&timer2, 2000, true);
 
     while (true) {
+        if (simple_timer_has_elapsed(&timer)) {
+            x++;
+        }
 
+        if (simple_timer_has_elapsed(&timer2)) {
+            simple_timer_reset(&timer);
+        }
     }
 
     // jump_to_application();
