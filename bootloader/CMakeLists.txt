@@ -51,6 +51,7 @@ target_sources(${BOOT_TARGET}
         src/bl-flash.c
         src/bootloader.c
         src/comms.c
+        src/startup.c
         ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/core/ring_buffer.c
         ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/core/simple_timer.c
         ${CMAKE_CURRENT_SOURCE_DIR}/../common/src/core/system.c
