@@ -4,7 +4,7 @@
 #include "comms.h"
 #include "simple_timer.h"
 #include "bootloader.h"
-
+#include "system.h"
 #include "bl-flash.h"
 
 #define BOOTLOADER_SIZE 0x8000U
@@ -67,6 +67,23 @@ static void uart_gpio_setup()
     // AF7, USART3RX = PD9
     GPIOD_AFRH |= (0b01 << 4) | (0b01 << 5) | (0b01 << 6);
     GPIOD_AFRH &= ~(0b01 << 7);
+}
+
+static void uart_gpio_teardown()
+{
+    GPIOD_MODER &= ~(0b01 << 17);
+    GPIOD_MODER &= ~(0b01 << 16);
+
+    GPIOD_MODER &= ~(0b01 << 19);
+    GPIOD_MODER &= ~(0b01 << 18);
+
+    GPIOD_AFRH &= ~((0b01 << 0) | (0b01 << 1) | (0b01 << 2));
+    GPIOD_AFRH &= ~(0b01 << 3);
+
+    GPIOD_AFRH &= ~((0b01 << 4) | (0b01 << 5) | (0b01 << 6));
+    GPIOD_AFRH &= ~(0b01 << 7);
+
+    RCC->AHB1ENR &= ~(0b01 << 3);
 }
 
 static void jump_to_application()
@@ -257,6 +274,10 @@ int main(void)
             break;
         }
     }
+    system_delay(300);
+    uart_teardown();
+    uart_gpio_teardown();
+    system_teardown();
 
     jump_to_application();
 }

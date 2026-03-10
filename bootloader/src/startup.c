@@ -3,8 +3,6 @@
 #include "system.h"
 #include "uart.h"
 
-#define SYS_TICK_FREQ 1000U
-#define CPU_FREQ 84000000U
 
 unsigned int* vectors[] __attribute__((section(".vectors"))) = {
     (unsigned int*)0x20030000,  //Pointer to the top of our stack memory
@@ -83,9 +81,8 @@ void Reset_Handler(void)
         *bss_ptr++ = 0;
     }
 
-    SystemCoreClockUpdate();
+    system_setup();
 
-    SysTick_Config(CPU_FREQ / SYS_TICK_FREQ);
     main();
 }
 

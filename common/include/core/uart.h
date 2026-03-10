@@ -6,6 +6,8 @@
 
 void uart_setup(void);
 
+void uart_teardown();
+
 void uart_write(uint8_t* data, const uint32_t length);
 
 void uart_write_byte(uint8_t data);
