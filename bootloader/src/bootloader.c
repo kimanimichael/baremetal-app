@@ -261,6 +261,8 @@ int main(void)
                     bytes_written += packet_length;
 
                     if (bytes_written >= fw_length) {
+                        comms_create_single_byte_packet(&packet, BL_PACKET_UPDATE_SUCCESS_DATA0);
+                        comms_write_packet(&packet);
                         state = BL_State_Done;
                     }
                 } else {
