@@ -9,4 +9,8 @@ uint32_t system_ticker(void);
 
 void system_delay(uint32_t ticks);
 
+void system_setup(void);
+
+void system_teardown(void);
+
 #endif //BAREMETAL_APP_SYSTEM_H

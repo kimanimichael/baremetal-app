@@ -3,6 +3,7 @@
 #include "uart.h"
 
 #include <assert.h>
+#include <string.h>
 
 #define PACKET_BUFFER_LENGTH (8)
 
@@ -28,11 +29,9 @@ bool comms_packets_available()
 
 void comms_create_single_byte_packet(comms_packet_t* packet, uint8_t byte)
 {
+    memset(packet, 0xff, sizeof(comms_packet_t));
     packet->length = 1;
     packet->data[0] = byte;
-    for (int i = 1; i < PACKET_DATA_LENGTH; i++) {
-        packet->data[i] = 0xff;
-    }
     packet->crc = comms_compute_crc(packet);
 }
 
@@ -85,7 +84,7 @@ void comms_update(void)
                     __asm__("BKPT 0");
                 }
 
-                comms_packet_cpy(&packet_buffer[packet_buffer_write_index], &temporary_packet);
+                memcpy(&packet_buffer[packet_buffer_write_index], &temporary_packet, sizeof(comms_packet_t));
                 packet_buffer_write_index = next_write_index;
                 comms_write_packet(&ack_packet);
                 state = Comms_State_Length;
@@ -104,6 +103,7 @@ void comms_write_packet(comms_packet_t const* packet)
         uart_write_byte(packet->data[i]);
     }
     uart_write_byte(packet->crc);
+    memcpy(&last_transmitted_packet, packet, sizeof(comms_packet_t));
 }
 
 void comms_read_packet(comms_packet_t* packet)
@@ -112,7 +112,7 @@ void comms_read_packet(comms_packet_t* packet)
         return;
     }
 
-    comms_packet_cpy(packet, &packet_buffer[packet_buffer_read_index]);
+    memcpy(packet, &packet_buffer[packet_buffer_read_index], sizeof(comms_packet_t));
     packet_buffer_read_index = (packet_buffer_read_index + 1) & packet_buffer_mask;
 }
 
@@ -129,13 +129,4 @@ bool comms_is_single_byte_packet(comms_packet_t const* packet, const uint8_t byt
 uint8_t  comms_compute_crc(comms_packet_t* packet)
 {
     return calculate_crc8((uint8_t*)packet, PACKET_LENGTH - PACKET_CRC_BYTES);
-}
-
-void comms_packet_cpy(comms_packet_t* dest, const comms_packet_t* src)
-{
-    dest->length = src->length;
-    for (int i = 0; i < PACKET_DATA_LENGTH; i++) {
-        dest->data[i] = src->data[i];
-    }
-    dest->crc = src->crc;
 }

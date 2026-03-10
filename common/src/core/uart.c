@@ -58,6 +58,16 @@ void uart_setup(void)
     ring_buffer_init(&rx_buffer, data_buffer, RING_BUFFER_SIZE);
 }
 
+void uart_teardown(void)
+{
+    USART3->CR1 &= ~(USART_CR1_UE | USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE);
+    NVIC_DisableIRQ(USART3_IRQn);
+    USART3->BRR = 0;
+    USART3->CR1 &= ~USART_CR1_UE;
+    USART3->CR3 = 0;
+    RCC->APB1ENR &= ~(0b01 << 18);
+}
+
 void uart_write(uint8_t* data, const uint32_t length)
 {
     for (int i = 0; i < length; i++) {

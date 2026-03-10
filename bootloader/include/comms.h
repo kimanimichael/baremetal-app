@@ -12,6 +12,17 @@
 #define PACKET_ACK_DATA0 (0x15)
 #define PACKET_RETX_DATA0 (0x19)
 
+#define BL_PACKET_SYNC_OBSERVED_DATA0 (0X20)
+#define BL_PACKET_FW_UPDATE_REQ_DATA0 (0X31)
+#define BL_PACKET_FW_UPDATE_RES_DATA0 (0x37)
+#define BL_PACKET_DEVICE_ID_REQ_DATA0 (0x3C)
+#define BL_PACKET_DEVICE_ID_RES_DATA0 (0x3F)
+#define BL_PACKET_FW_LENGTH_REQ_DATA0 (0x42)
+#define BL_PACKET_FW_LENGTH_RES_DATA0 (0x45)
+#define BL_PACKET_READY_FOR_DATA_DATA0 (0x48)
+#define BL_PACKET_UPDATE_SUCCESS_DATA0 (0x54)
+#define BL_PACKET_NACK_DATA0 (0x59)
+
 typedef enum comms_state {
     Comms_State_Length = 0,
     Comms_State_Data,
@@ -37,8 +48,6 @@ void comms_read_packet(comms_packet_t* packet);
 bool comms_is_single_byte_packet(comms_packet_t const* packet, uint8_t byte);
 
 uint8_t comms_compute_crc(comms_packet_t* packet);
-
-void comms_packet_cpy(comms_packet_t* dest, const comms_packet_t* src);
 
 void comms_create_single_byte_packet(comms_packet_t* packet, uint8_t byte);
 
