@@ -10,6 +10,21 @@ const PACKET_LENGTH = PACKET_LENGTH_BYTES + PACKET_DATA_BYTES + PACKET_CRC_BYTES
 const PACKET_ACK_DATA0 = 0x15;
 const PACKET_RETX_DATA0 = 0x19;
 
+const BL_PACKET_SYNC_OBSERVED_DATA0 =  (0X20);
+const BL_PACKET_FW_UPDATE_REQ_DATA0 =  (0X31);
+const BL_PACKET_FW_UPDATE_RES_DATA0 =  (0x37);
+const BL_PACKET_DEVICE_ID_REQ_DATA0 =  (0x3C);
+const BL_PACKET_DEVICE_ID_RES_DATA0 =  (0x3F);
+const BL_PACKET_FW_LENGTH_REQ_DATA0 =  (0x42);
+const BL_PACKET_FW_LENGTH_RES_DATA0 =  (0x45);
+const BL_PACKET_READY_FOR_DATA_DATA0 = (0x48);
+const BL_PACKET_UPDATE_SUCCESS_DATA0 = (0x54);
+const BL_PACKET_NACK_DATA0 = (0x59);
+
+const DEVICE_ID = (0x42);
+const SYNC_SEQ = Buffer.from([0xC4, 0x55, 0x7E, 0x10]);
+const BOOTLOADER_TIMEOUT_MS = (5000);
+
 const serialPath = "/dev/ttyACM0"; // Update this to your serial port path
 const baudRate = 115200;
 
@@ -31,6 +46,18 @@ const crc8 = (data: Buffer | Array<number>) => {
 };
 
 const delay = (ms: number) => setTimeout(ms);
+
+class Logger {
+    static info(message: string) {
+        console.log(`[.INFO] ${message}`);
+    }
+    static error(message: string) {
+        console.error(`[!ERROR] ${message}`);
+    }
+    static success(message: string) {
+        console.log(`[$SUCCESS] ${message}`);
+    }
+}
 
 class Packet {
     length: number;
@@ -152,10 +179,33 @@ const waitForPacket = async () => {
     return packet;
 }
 
+const syncWithBootloader = async (timeout = BOOTLOADER_TIMEOUT_MS) => {
+    let timeWaited = 0;
+    while (true) {
+        uart.write(SYNC_SEQ);
+        await delay(1000);
+        timeWaited += 1000;
+
+        if (packets.length > 0) {
+            const packet = packets.splice(0, 1)[0];
+            if (packet.isSingleBytePacket(BL_PACKET_SYNC_OBSERVED_DATA0)) {
+                Logger.info("Bootloader sync observed");
+                return;
+            }
+            Logger.error(`Expected bootloader sync, got packet with data0=0x${packet.data[0].toString(16)}`);
+            process.exit(1);
+        }
+
+        if (timeWaited >= timeout) {
+            Logger.error("Timeout waiting for sync sequence");
+        }
+    }
+}
+
 const main = async () => {
-    console.log("Waiting for packet...");
-    const packet = await waitForPacket();
-    console.log("Packet received:", packet);
+    Logger.info("Attempting to sync with bootloader...");
+    await syncWithBootloader();
+    Logger.success("Synced with bootloader");
 }
 
 main();
