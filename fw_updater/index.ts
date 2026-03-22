@@ -267,11 +267,11 @@ const main = async () => {
     Logger.info("Responded with firmware length");
 
     Logger.info("Waiting for a few seconds for main application to be erased...")
-    await delay(60000);
+    await delay(3000);
 
     let bytesWritten = 0;
     while (bytesWritten < fwLength) {
-        await waitForSingleBytePacket(BL_PACKET_READY_FOR_DATA_DATA0);
+        await waitForSingleBytePacket(BL_PACKET_READY_FOR_DATA_DATA0, 90000);
         const chunk = fwImage.slice(bytesWritten, bytesWritten + PACKET_DATA_BYTES);
         const chunkLength = chunk.length;
 
@@ -280,6 +280,7 @@ const main = async () => {
         bytesWritten += chunkLength;
         Logger.info(`Wrote ${chunkLength} bytes of firmware (${bytesWritten}/${fwLength})`);
     }
+    Logger.info("All firmware bytes written. Waiting for update success from bootloader...");
 
     await waitForSingleBytePacket(BL_PACKET_UPDATE_SUCCESS_DATA0);
     Logger.success("Firmware update complete!");
