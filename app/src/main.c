@@ -19,17 +19,11 @@ int main()
 
     uint32_t start = BSP_Tickr();
     while (true) {
-        if ((BSP_Tickr() - start) > 1000) {
+        if ((BSP_Tickr() - start) > 100000) {
             BSP_blueLedToggle();
-            printf("LED toggled\n\r");
-            printf("Float test: %.2f\n\r", 3.45);
             start = BSP_Tickr();
         }
-        if (uart_data_available()) {
-            uart_read(&read_char, 1);
-            printf("%c\n\r", read_char + 1);
-        }
-        BSP_Delay(1000);
+        BSP_Delay(100000);
     }
 }
 
