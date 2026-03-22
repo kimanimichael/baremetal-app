@@ -154,22 +154,22 @@ uart.on('data', data => {
         if (computedCrc !== packet.crc) {
             console.log(`CRC failed, computed 0x${computedCrc.toString(16)}, got 0x${packet.crc.toString(16)}`)
             writePacket(Packet.retx);
-            return;
+            continue;
         }
 
         if (packet.isRetx()) {
             console.log(`Retransmitting last packet`);
             writePacket(lastPacket);
-            return;
+            continue;
         }
 
         if (packet.isAck()) {
-            return;
+            continue;
         }
 
         if(packet.isSingleBytePacket(BL_PACKET_NACK_DATA0)) {
             Logger.error("Received NACK packet, exiting...")
-            return;
+            process.exit(1);
         }
 
         packets.push(packet);
