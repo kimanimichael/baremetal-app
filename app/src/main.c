@@ -11,11 +11,12 @@ int __io_putchar(int data)
     return data;
 }
 
+__attribute__((used)) const uint8_t padding[8] = {0};
+
 int main()
 {
     BSP_init();
     uart_setup();
-    uint8_t read_char = 0;
 
     uint32_t start = BSP_Tickr();
     while (true) {
