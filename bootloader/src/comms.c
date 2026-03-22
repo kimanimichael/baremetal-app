@@ -43,7 +43,7 @@ void comms_setup(void)
 
 void comms_update(void)
 {
-    while (comms_packets_available()) {
+    while (uart_data_available()) {
         switch (state) {
             case Comms_State_Length: {
                 temporary_packet.length = uart_read_byte();
