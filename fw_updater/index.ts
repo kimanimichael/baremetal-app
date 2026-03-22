@@ -232,7 +232,7 @@ const syncWithBootloader = async (timeout = BOOTLOADER_TIMEOUT_MS) => {
 
 const main = async () => {
     Logger.info("Reading firmware file...");
-    const fwImage = await fs.readFile(path.join(process.cwd(), "cmake-build/baremetal_app.bin"))
+    const fwImage = await fs.readFile(path.join(process.cwd(), "dev_tools/baremetal_app.bin"))
         .then(bin => bin.slice(BOOTLOADER_SIZE));
     const fwLength = fwImage.length;
     Logger.success(`Read firmware file, length ${fwLength} bytes`);

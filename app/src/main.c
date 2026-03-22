@@ -20,11 +20,11 @@ int main()
 
     uint32_t start = BSP_Tickr();
     while (true) {
-        if ((BSP_Tickr() - start) > 100000) {
+        if ((BSP_Tickr() - start) > 2000) {
             BSP_blueLedToggle();
             start = BSP_Tickr();
         }
-        BSP_Delay(100000);
+        BSP_Delay(10);
     }
 }
 
