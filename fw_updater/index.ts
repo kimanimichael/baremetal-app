@@ -226,6 +226,7 @@ const syncWithBootloader = async (timeout = BOOTLOADER_TIMEOUT_MS) => {
 
         if (timeWaited >= timeout) {
             Logger.error("Timeout waiting for sync sequence");
+            process.exit(1);
         }
     }
 }
