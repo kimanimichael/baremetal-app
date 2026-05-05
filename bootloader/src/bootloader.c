@@ -247,23 +247,30 @@ int main(void)
             break;
             case BL_State_EraseApplication: {
                 bl_flash_erase_main_application();
+
+                comms_create_single_byte_packet(&packet, BL_PACKET_READY_FOR_DATA_DATA0);
+                comms_write_packet(&packet);
                 simple_timer_reset(&timer);
+
                 state = BL_State_Receive_Firmware;
             }
             break;
             case BL_State_Receive_Firmware: {
                 if (comms_packets_available()) {
                     comms_read_packet(&packet);
-                    simple_timer_reset(&timer);
 
                     const uint8_t packet_length = (packet.length & 0x0F) + 1;
                     bl_flash_write(MAIN_APP_START_ADDRESS + bytes_written, packet.data, packet_length);
                     bytes_written += packet_length;
+                    simple_timer_reset(&timer);
 
                     if (bytes_written >= fw_length) {
                         comms_create_single_byte_packet(&packet, BL_PACKET_UPDATE_SUCCESS_DATA0);
                         comms_write_packet(&packet);
                         state = BL_State_Done;
+                    } else {
+                        comms_create_single_byte_packet(&packet, BL_PACKET_READY_FOR_DATA_DATA0);
+                        comms_write_packet(&packet);
                     }
                 } else {
                     check_for_timeout();
