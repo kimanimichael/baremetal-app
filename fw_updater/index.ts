@@ -291,7 +291,8 @@ const main = async () => {
     Logger.info("Waiting for device ID request...");
     await waitForSingleBytePacket(BL_PACKET_DEVICE_ID_REQ_DATA0);
 
-    const deviceIdPacket = new Packet(2, Buffer.from([BL_PACKET_DEVICE_ID_RES_DATA0, DEVICE_ID])).toBuffer();
+    const deviceId = fwImage[FW_INFO_DEVICE_ID_OFFSET];
+    const deviceIdPacket = new Packet(2, Buffer.from([BL_PACKET_DEVICE_ID_RES_DATA0, deviceId])).toBuffer();
     writePacket(deviceIdPacket);
     Logger.info("Responded with device ID 0x" + DEVICE_ID.toString(16));
 
