@@ -59,6 +59,7 @@ target_sources(${APP_TARGET}
         common/src/core/uart.c
         common/src/utils/crc8.c
         app/src/bsp.c
+        app/src/info.c
         app/src/main.c
         app/src/startup.c
         app/src/syscalls.c

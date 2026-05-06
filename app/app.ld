@@ -16,6 +16,9 @@ SECTIONS
 	    . = ALIGN(512);
 	    _stext = .;
         KEEP(*(.vectors .vectors.*))
+
+        KEEP(*(.firmware_info))
+
         *(.text*)
         . = ALIGN(4);
         *(.rodata*)

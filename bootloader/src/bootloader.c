@@ -6,10 +6,7 @@
 #include "bootloader.h"
 #include "system.h"
 #include "bl-flash.h"
-
-#define BOOTLOADER_SIZE 0x8000U
-#define MAIN_APP_START_ADDRESS (0x08000000U + BOOTLOADER_SIZE)
-#define MAX_FW_LENGTH (0x200000 - BOOTLOADER_SIZE)
+#include "firmware_info.h"
 
 //Base GPIOD register 0x4002 0C00 + offset 0x00 to find GPIOD_MODER
 #define GPIOD_MODER (*((unsigned int *)(0x40020C00)))
@@ -20,7 +17,6 @@
 // Breaks as it causes excedding of allocated size
 // const uint8_t data[0x8000] = {0};
 
-#define DEVICE_ID (0x42)
 
 #define SYNC_SEQ_0 (0xC4)
 #define SYNC_SEQ_1 (0x55)
