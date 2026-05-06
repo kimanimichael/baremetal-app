@@ -12,8 +12,6 @@ const PACKET_LENGTH = PACKET_LENGTH_BYTES + PACKET_DATA_BYTES + PACKET_CRC_BYTES
 const PACKET_ACK_DATA0 = 0x15;
 const PACKET_RETX_DATA0 = 0x19;
 
-const BOOTLOADER_SIZE = (0x8000);
-
 const BL_PACKET_SYNC_OBSERVED_DATA0 =  (0X20);
 const BL_PACKET_FW_UPDATE_REQ_DATA0 =  (0X31);
 const BL_PACKET_FW_UPDATE_RES_DATA0 =  (0x37);
@@ -24,6 +22,20 @@ const BL_PACKET_FW_LENGTH_RES_DATA0 =  (0x45);
 const BL_PACKET_READY_FOR_DATA_DATA0 = (0x48);
 const BL_PACKET_UPDATE_SUCCESS_DATA0 = (0x54);
 const BL_PACKET_NACK_DATA0 = (0x59);
+
+const FLASH_BASE                        = (0x8000000);
+const BOOTLOADER_SIZE                   = (0x8000);
+const VECTOR_TABLE_SIZE                 = (0xE0);
+const FIRMWARE_INFO_SIZE        = (10 * 4);
+
+const FW_INFO_SENTINEL                  = (0xDEADC0DE);
+const FW_INFO_ADDRESS           = (FLASH_BASE + BOOTLOADER_SIZE + VECTOR_TABLE_SIZE);
+const FW_INFO_VALIDATE_FROM     = (FW_INFO_ADDRESS + FIRMWARE_INFO_SIZE);
+
+const FW_INFO_DEVICE_ID_OFFSET  = (FW_INFO_ADDRESS + (1 * 4));
+const FW_INFO_VERSION_OFFSET    = (FW_INFO_ADDRESS + (2 * 4));
+const FW_INFO_LENGTH_OFFSET     = (FW_INFO_ADDRESS + (3 * 4));
+const FW_INFO_CRC_OFFSET        = (FW_INFO_ADDRESS + (9 * 4));
 
 const DEVICE_ID = (0x42);
 const SYNC_SEQ = Buffer.from([0xC4, 0x55, 0x7E, 0x10]);
@@ -48,6 +60,24 @@ const crc8 = (data: Buffer | Array<number>) => {
 
     return crc;
 };
+
+const crc32 = (data: Buffer, length: number) => {
+    let byte;
+    let crc = 0xFFFFFFFF;
+    let mask;
+
+    for (let i = 0; i < length; i++) {
+        byte = data[i];
+        crc = (crc ^ byte) >>> 0;
+
+        for (let j = 0; j < 8; j++) {
+            mask = (-(crc & 1)) >>> 0;
+            crc = ((crc >>> 1) ^ (0xEDB88320 & mask)) >>> 0;
+        }
+    }
+
+    return (~crc) >>> 0;
+}
 
 const delay = (ms: number) => setTimeout(ms);
 
@@ -237,6 +267,14 @@ const main = async () => {
         .then(bin => bin.slice(BOOTLOADER_SIZE));
     const fwLength = fwImage.length;
     Logger.success(`Read firmware file, length ${fwLength} bytes`);
+
+    Logger.info("Injecting into firmware information section");
+    fwImage.writeUInt32LE(0x00000001, FW_INFO_VERSION_OFFSET);
+    fwImage.writeUInt32LE(fwLength, FW_INFO_LENGTH_OFFSET);
+
+    const crcValue = crc32(fwImage.slice(FW_INFO_VALIDATE_FROM), fwLength - (VECTOR_TABLE_SIZE + FIRMWARE_INFO_SIZE));
+    Logger.info(`Calculated CRC32 of firmware: 0x${crcValue.toString(16).padStart(8, '0')}`);
+    fwImage.writeUInt32LE(crcValue, FW_INFO_CRC_OFFSET);
 
 
     Logger.info("Attempting to sync with bootloader...");
