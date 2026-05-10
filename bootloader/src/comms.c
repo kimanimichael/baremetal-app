@@ -1,5 +1,5 @@
 #include "comms.h"
-#include "crc8.h"
+#include "crc.h"
 #include "uart.h"
 
 #include <assert.h>
