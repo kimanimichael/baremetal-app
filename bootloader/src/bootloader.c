@@ -7,6 +7,7 @@
 #include "system.h"
 #include "bl-flash.h"
 #include "firmware_info.h"
+#include "crc.h"
 
 //Base GPIOD register 0x4002 0C00 + offset 0x00 to find GPIOD_MODER
 #define GPIOD_MODER (*((unsigned int *)(0x40020C00)))
@@ -82,6 +83,26 @@ static void uart_gpio_teardown()
     RCC->AHB1ENR &= ~(0b01 << 3);
 }
 
+static bool validate_firmware_image()
+{
+    const firmware_info_t* firmware_info = (firmware_info_t*)FW_INFO_ADDRESS;
+    if (firmware_info->length == 0 || firmware_info->length > MAX_FW_LENGTH) {
+        return false;
+    }
+
+    if (firmware_info->sentinel != FW_INFO_SENTINEL) {
+        return false;
+    }
+
+    if (firmware_info->device_id != DEVICE_ID) {
+        return false;
+    }
+
+    const uint32_t calculated_crc = crc32((uint8_t*)FW_INFO_VALIDATE_FROM, FW_INFO_VALIDATE_LENGTH(firmware_info->length));
+    return calculated_crc == firmware_info->crc32;
+
+}
+
 static void jump_to_application()
 {
     typedef void (*void_fn)(void);
@@ -139,6 +160,7 @@ static bool is_fw_length_packet(comms_packet_t const* data_packet)
 
 int main(void)
 {
+main_start:
     uart_gpio_setup();
     uart_setup();
     comms_setup();
@@ -284,5 +306,9 @@ int main(void)
     uart_gpio_teardown();
     system_teardown();
 
-    jump_to_application();
+    if (validate_firmware_image()) {
+        jump_to_application();
+    } else {
+        goto main_start;
+    }
 }

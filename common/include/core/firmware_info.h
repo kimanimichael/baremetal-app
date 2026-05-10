@@ -3,15 +3,74 @@
 
 #include "stdint.h"
 
+unsigned int* vectors_t[] = {
+    (unsigned int*)0,
+    (unsigned int*)0,
+    (unsigned int*)0,
+    (unsigned int*)0,
+    (unsigned int*)0,
+    (unsigned int*)0,
+    (unsigned int*)0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    (unsigned int*)0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    (unsigned int*)0
+};
+
 #define BOOTLOADER_SIZE                     (0x8000U)
 #define MAIN_APP_START_ADDRESS              (0x08000000U + BOOTLOADER_SIZE)
 #define MAX_FW_LENGTH                       (0x200000 - BOOTLOADER_SIZE)
-#define DEVICE_ID                           (0x42)
+#define DEVICE_ID                           (0x43)
 
 #define FW_INFO_SENTINEL                    (0xDEADC0DE)
-#define FW_INFO_ADDRESS                     (MAIN_APP_START_ADDRESS +sizeof(vectors))
+#define FW_INFO_ADDRESS                     (MAIN_APP_START_ADDRESS +sizeof(vectors_t))
 #define FW_INFO_VALIDATE_FROM               (FW_INFO_ADDRESS + sizeof(firmware_info_t))
-#define FW_INFO_VALIDATE_LENGTH(fw_length)  (fw_length - (sizeof(vectors) + sizeof(firmware_info_t)))
+#define FW_INFO_VALIDATE_LENGTH(fw_length)  (fw_length - (sizeof(vectors_t) + sizeof(firmware_info_t)))
 
 typedef struct firmware_info_t {
     uint32_t sentinel;

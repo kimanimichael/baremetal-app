@@ -18,7 +18,8 @@ uint8_t calculate_crc8(uint8_t* data, uint32_t length)
     return crc;
 }
 
-uint32_t crc32(const uint8_t* data, const uint32_t length) {
+uint32_t crc32(const uint8_t* data, const uint32_t length)
+{
     uint8_t byte;
     uint32_t crc = 0xffffffff;
     uint32_t mask;
