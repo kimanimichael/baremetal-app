@@ -23,21 +23,18 @@ const BL_PACKET_READY_FOR_DATA_DATA0 = (0x48);
 const BL_PACKET_UPDATE_SUCCESS_DATA0 = (0x54);
 const BL_PACKET_NACK_DATA0 = (0x59);
 
-const FLASH_BASE                        = (0x8000000);
 const BOOTLOADER_SIZE                   = (0x8000);
 const VECTOR_TABLE_SIZE                 = (0xE0);
 const FIRMWARE_INFO_SIZE        = (10 * 4);
 
-const FW_INFO_SENTINEL                  = (0xDEADC0DE);
-const FW_INFO_ADDRESS           = (FLASH_BASE + BOOTLOADER_SIZE + VECTOR_TABLE_SIZE);
-const FW_INFO_VALIDATE_FROM     = (FW_INFO_ADDRESS + FIRMWARE_INFO_SIZE);
+const FW_INFO_VALIDATE_FROM     = (VECTOR_TABLE_SIZE + FIRMWARE_INFO_SIZE);
 
-const FW_INFO_DEVICE_ID_OFFSET  = (FW_INFO_ADDRESS + (1 * 4));
-const FW_INFO_VERSION_OFFSET    = (FW_INFO_ADDRESS + (2 * 4));
-const FW_INFO_LENGTH_OFFSET     = (FW_INFO_ADDRESS + (3 * 4));
-const FW_INFO_CRC_OFFSET        = (FW_INFO_ADDRESS + (9 * 4));
+const FW_INFO_DEVICE_ID_OFFSET  = (VECTOR_TABLE_SIZE + (1 * 4));
+const FW_INFO_VERSION_OFFSET    = (VECTOR_TABLE_SIZE + (2 * 4));
+const FW_INFO_LENGTH_OFFSET     = (VECTOR_TABLE_SIZE + (3 * 4));
+const FW_INFO_CRC_OFFSET        = (VECTOR_TABLE_SIZE + (9 * 4));
 
-const DEVICE_ID = (0x42);
+const DEVICE_ID = (0x43);
 const SYNC_SEQ = Buffer.from([0xC4, 0x55, 0x7E, 0x10]);
 const BOOTLOADER_TIMEOUT_MS = (5000);
 
