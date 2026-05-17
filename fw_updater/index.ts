@@ -34,7 +34,6 @@ const FW_INFO_VERSION_OFFSET    = (VECTOR_TABLE_SIZE + (2 * 4));
 const FW_INFO_LENGTH_OFFSET     = (VECTOR_TABLE_SIZE + (3 * 4));
 const FW_INFO_CRC_OFFSET        = (VECTOR_TABLE_SIZE + (9 * 4));
 
-const DEVICE_ID = (0x43);
 const SYNC_SEQ = Buffer.from([0xC4, 0x55, 0x7E, 0x10]);
 const BOOTLOADER_TIMEOUT_MS = (5000);
 
@@ -260,7 +259,7 @@ const syncWithBootloader = async (timeout = BOOTLOADER_TIMEOUT_MS) => {
 
 const main = async () => {
     Logger.info("Reading firmware file...");
-    const fwImage = await fs.readFile(path.join(process.cwd(), "dev_tools/baremetal_app.bin"))
+    const fwImage = await fs.readFile(path.join(process.cwd(), "cmake-build/baremetal_app.bin"))
         .then(bin => bin.slice(BOOTLOADER_SIZE));
     const fwLength = fwImage.length;
     Logger.success(`Read firmware file, length ${fwLength} bytes`);
@@ -291,7 +290,7 @@ const main = async () => {
     const deviceId = fwImage[FW_INFO_DEVICE_ID_OFFSET];
     const deviceIdPacket = new Packet(2, Buffer.from([BL_PACKET_DEVICE_ID_RES_DATA0, deviceId])).toBuffer();
     writePacket(deviceIdPacket);
-    Logger.info("Responded with device ID 0x" + DEVICE_ID.toString(16));
+    Logger.info("Responded with device ID 0x" + deviceId.toString(16));
 
     Logger.info("Waiting for firmware length request...");
     await waitForSingleBytePacket(BL_PACKET_FW_LENGTH_REQ_DATA0);
