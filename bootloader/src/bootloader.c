@@ -125,6 +125,19 @@ static void boot_loading_fail()
     state = BL_State_Done;
 }
 
+static void boot_loading_timeout()
+{
+    simple_timer_reset(&timer);
+    state = BL_State_Done;
+}
+
+static void check_for_initial_timeout(void)
+{
+    if (simple_timer_has_elapsed(&timer)) {
+        boot_loading_timeout();
+    }
+}
+
 static void check_for_timeout(void)
 {
     if (simple_timer_has_elapsed(&timer)) {
@@ -191,7 +204,7 @@ main_start:
                     check_for_timeout();
                 }
             } else {
-                check_for_timeout();
+                check_for_initial_timeout();
             }
             continue;
         }
