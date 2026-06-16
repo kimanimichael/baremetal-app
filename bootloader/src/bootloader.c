@@ -6,10 +6,8 @@
 #include "bootloader.h"
 #include "system.h"
 #include "bl-flash.h"
-
-#define BOOTLOADER_SIZE 0x8000U
-#define MAIN_APP_START_ADDRESS (0x08000000U + BOOTLOADER_SIZE)
-#define MAX_FW_LENGTH (0x200000 - BOOTLOADER_SIZE)
+#include "firmware_info.h"
+#include "crc.h"
 
 //Base GPIOD register 0x4002 0C00 + offset 0x00 to find GPIOD_MODER
 #define GPIOD_MODER (*((unsigned int *)(0x40020C00)))
@@ -20,7 +18,6 @@
 // Breaks as it causes excedding of allocated size
 // const uint8_t data[0x8000] = {0};
 
-#define DEVICE_ID (0x42)
 
 #define SYNC_SEQ_0 (0xC4)
 #define SYNC_SEQ_1 (0x55)
@@ -86,6 +83,26 @@ static void uart_gpio_teardown()
     RCC->AHB1ENR &= ~(0b01 << 3);
 }
 
+static bool validate_firmware_image()
+{
+    const firmware_info_t* firmware_info = (firmware_info_t*)FW_INFO_ADDRESS;
+    if (firmware_info->length == 0 || firmware_info->length > MAX_FW_LENGTH) {
+        return false;
+    }
+
+    if (firmware_info->sentinel != FW_INFO_SENTINEL) {
+        return false;
+    }
+
+    if (firmware_info->device_id != DEVICE_ID) {
+        return false;
+    }
+
+    const uint32_t calculated_crc = crc32((uint8_t*)FW_INFO_VALIDATE_FROM, FW_INFO_VALIDATE_LENGTH(firmware_info->length));
+    return calculated_crc == firmware_info->crc32;
+
+}
+
 static void jump_to_application()
 {
     typedef void (*void_fn)(void);
@@ -106,6 +123,19 @@ static void boot_loading_fail()
     comms_write_packet(&packet);
     simple_timer_reset(&timer);
     state = BL_State_Done;
+}
+
+static void boot_loading_timeout()
+{
+    simple_timer_reset(&timer);
+    state = BL_State_Done;
+}
+
+static void check_for_initial_timeout(void)
+{
+    if (simple_timer_has_elapsed(&timer)) {
+        boot_loading_timeout();
+    }
 }
 
 static void check_for_timeout(void)
@@ -143,6 +173,7 @@ static bool is_fw_length_packet(comms_packet_t const* data_packet)
 
 int main(void)
 {
+    system_setup();
     uart_gpio_setup();
     uart_setup();
     comms_setup();
@@ -172,7 +203,7 @@ int main(void)
                     check_for_timeout();
                 }
             } else {
-                check_for_timeout();
+                check_for_initial_timeout();
             }
             continue;
         }
@@ -288,5 +319,9 @@ int main(void)
     uart_gpio_teardown();
     system_teardown();
 
-    jump_to_application();
+    if (validate_firmware_image()) {
+        jump_to_application();
+    } else {
+        NVIC_SystemReset();
+    }
 }

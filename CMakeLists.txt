@@ -57,8 +57,9 @@ target_sources(${APP_TARGET}
         common/src/core/ring_buffer.c
         common/src/core/system_stm32f4xx.c
         common/src/core/uart.c
-        common/src/utils/crc8.c
+        common/src/utils/crc.c
         app/src/bsp.c
+        app/src/info.c
         app/src/main.c
         app/src/startup.c
         app/src/syscalls.c

@@ -12,8 +12,6 @@ const PACKET_LENGTH = PACKET_LENGTH_BYTES + PACKET_DATA_BYTES + PACKET_CRC_BYTES
 const PACKET_ACK_DATA0 = 0x15;
 const PACKET_RETX_DATA0 = 0x19;
 
-const BOOTLOADER_SIZE = (0x8000);
-
 const BL_PACKET_SYNC_OBSERVED_DATA0 =  (0X20);
 const BL_PACKET_FW_UPDATE_REQ_DATA0 =  (0X31);
 const BL_PACKET_FW_UPDATE_RES_DATA0 =  (0x37);
@@ -25,7 +23,17 @@ const BL_PACKET_READY_FOR_DATA_DATA0 = (0x48);
 const BL_PACKET_UPDATE_SUCCESS_DATA0 = (0x54);
 const BL_PACKET_NACK_DATA0 = (0x59);
 
-const DEVICE_ID = (0x42);
+const BOOTLOADER_SIZE                   = (0x8000);
+const VECTOR_TABLE_SIZE                 = (0xE0);
+const FIRMWARE_INFO_SIZE        = (10 * 4);
+
+const FW_INFO_VALIDATE_FROM     = (VECTOR_TABLE_SIZE + FIRMWARE_INFO_SIZE);
+
+const FW_INFO_DEVICE_ID_OFFSET  = (VECTOR_TABLE_SIZE + (1 * 4));
+const FW_INFO_VERSION_OFFSET    = (VECTOR_TABLE_SIZE + (2 * 4));
+const FW_INFO_LENGTH_OFFSET     = (VECTOR_TABLE_SIZE + (3 * 4));
+const FW_INFO_CRC_OFFSET        = (VECTOR_TABLE_SIZE + (9 * 4));
+
 const SYNC_SEQ = Buffer.from([0xC4, 0x55, 0x7E, 0x10]);
 const BOOTLOADER_TIMEOUT_MS = (5000);
 
@@ -48,6 +56,24 @@ const crc8 = (data: Buffer | Array<number>) => {
 
     return crc;
 };
+
+const crc32 = (data: Buffer, length: number) => {
+    let byte;
+    let crc = 0xFFFFFFFF;
+    let mask;
+
+    for (let i = 0; i < length; i++) {
+        byte = data[i];
+        crc = (crc ^ byte) >>> 0;
+
+        for (let j = 0; j < 8; j++) {
+            mask = (-(crc & 1)) >>> 0;
+            crc = ((crc >>> 1) ^ (0xEDB88320 & mask)) >>> 0;
+        }
+    }
+
+    return (~crc) >>> 0;
+}
 
 const delay = (ms: number) => setTimeout(ms);
 
@@ -233,10 +259,18 @@ const syncWithBootloader = async (timeout = BOOTLOADER_TIMEOUT_MS) => {
 
 const main = async () => {
     Logger.info("Reading firmware file...");
-    const fwImage = await fs.readFile(path.join(process.cwd(), "dev_tools/baremetal_app.bin"))
+    const fwImage = await fs.readFile(path.join(process.cwd(), "cmake-build/baremetal_app.bin"))
         .then(bin => bin.slice(BOOTLOADER_SIZE));
     const fwLength = fwImage.length;
     Logger.success(`Read firmware file, length ${fwLength} bytes`);
+
+    Logger.info("Injecting into firmware information section");
+    fwImage.writeUInt32LE(0x00000001, FW_INFO_VERSION_OFFSET);
+    fwImage.writeUInt32LE(fwLength, FW_INFO_LENGTH_OFFSET);
+
+    const crcValue = crc32(fwImage.slice(FW_INFO_VALIDATE_FROM), fwLength - (VECTOR_TABLE_SIZE + FIRMWARE_INFO_SIZE));
+    Logger.info(`Calculated CRC32 of firmware: 0x${crcValue.toString(16).padStart(8, '0')}`);
+    fwImage.writeUInt32LE(crcValue, FW_INFO_CRC_OFFSET);
 
 
     Logger.info("Attempting to sync with bootloader...");
@@ -253,9 +287,10 @@ const main = async () => {
     Logger.info("Waiting for device ID request...");
     await waitForSingleBytePacket(BL_PACKET_DEVICE_ID_REQ_DATA0);
 
-    const deviceIdPacket = new Packet(2, Buffer.from([BL_PACKET_DEVICE_ID_RES_DATA0, DEVICE_ID])).toBuffer();
+    const deviceId = fwImage[FW_INFO_DEVICE_ID_OFFSET];
+    const deviceIdPacket = new Packet(2, Buffer.from([BL_PACKET_DEVICE_ID_RES_DATA0, deviceId])).toBuffer();
     writePacket(deviceIdPacket);
-    Logger.info("Responded with device ID 0x" + DEVICE_ID.toString(16));
+    Logger.info("Responded with device ID 0x" + deviceId.toString(16));
 
     Logger.info("Waiting for firmware length request...");
     await waitForSingleBytePacket(BL_PACKET_FW_LENGTH_REQ_DATA0);
@@ -287,4 +322,11 @@ const main = async () => {
     Logger.success("Firmware update complete!");
 }
 
-main().finally(() => uart.close());
+main()
+    .catch((err) => {
+        Logger.error(err instanceof Error ? err.message : String(err));
+        process.exitCode = 1;
+    })
+    .finally(() => {
+        if (uart.isOpen) uart.close();
+    });
