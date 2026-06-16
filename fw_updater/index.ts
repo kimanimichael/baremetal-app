@@ -322,4 +322,11 @@ const main = async () => {
     Logger.success("Firmware update complete!");
 }
 
-main().finally(() => uart.close());
+main()
+    .catch((err) => {
+        Logger.error(err instanceof Error ? err.message : String(err));
+        process.exitCode = 1;
+    })
+    .finally(() => {
+        if (uart.isOpen) uart.close();
+    });
