@@ -173,7 +173,6 @@ static bool is_fw_length_packet(comms_packet_t const* data_packet)
 
 int main(void)
 {
-main_start:
     system_setup();
     uart_gpio_setup();
     uart_setup();
@@ -323,13 +322,6 @@ main_start:
     if (validate_firmware_image()) {
         jump_to_application();
     } else {
-        fw_length = 0;
-        bytes_written = 0;
-        sync_seq[0] = 0;
-        sync_seq[1] = 0;
-        sync_seq[2] = 0;
-        sync_seq[3] = 0;
-        state = BL_State_Sync;
-        goto main_start;
+        NVIC_SystemReset();
     }
 }
